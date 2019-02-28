@@ -1,1 +1,2 @@
 # projectalexander
+setting up gitbash
