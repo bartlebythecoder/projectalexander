@@ -109,8 +109,6 @@ def ai_play_dataset_script(look_at_dataname):
         hero_low_list = string_to_low(hero_hand)
         hero_low_hand = find_low(board_low_list,hero_low_list)
         
-
-
         result = 0   
 #            print(hero_low_hand[0:5])
 #            print(villain_low_hand[0:5])
