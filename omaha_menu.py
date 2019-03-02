@@ -1,6 +1,6 @@
 # !/usr/bin/python3
+from tkinter import messagebox, Checkbutton, IntVar, Radiobutton, StringVar
 from tkinter import *
-from tkinter import messagebox, Checkbutton, IntVar
 from analyze_dataset import analyze_dataset_script
 from browse_dataset import browse_dataset
 from build_dataset_lows import build_dataset
@@ -23,7 +23,6 @@ def send_to_analyzer(set,var1,var2,var3,analyzer):
     analyze_dataset_script(set,var1_pass,var2_pass,var3_pass)
 
 def analyze_a_set(z):
-
     analyzer = Toplevel()
     analyzer.title("Build A New Dataset")
     var1 = IntVar()
@@ -35,11 +34,27 @@ def analyze_a_set(z):
     Button(analyzer, text='Cancel', command=analyzer.destroy).grid(row=6, sticky=W, pady=2)
     Button(analyzer, text='Submit', command=lambda: send_to_analyzer(z,var1,var2,var3,analyzer)).grid(row=6,column=2, sticky=W, pady=2)
 
+def send_to_ai_play(z,ai_var,ai_root):
+    ai_var_pass = ai_var.get()
+    ai_root.destroy()
+    ai_play_dataset_script(z,ai_var_pass)
+
+def choose_ai_option(z):
+    ai_root = Toplevel()
+    ai_root.title("How Should the AI Play?")
+    ai_var = StringVar(value="1")
+
+    Radiobutton(ai_root, text="AI Always Calls", variable=ai_var, value="1").grid(row=1, sticky=W,pady=2)
+    Radiobutton(ai_root, text="AI Guesses", variable=ai_var, value="2").grid(row=2, sticky=W,pady=2)
+    Radiobutton(ai_root, text="AI Uses BillyKid Model", variable=ai_var, value="3").grid(row=3, sticky=W,pady=2)
+    Button(ai_root, text='Cancel', command=ai_root.destroy).grid(row=4, sticky=W,pady=2)
+    Button(ai_root, text='Submit', command=lambda: send_to_ai_play(z,ai_var,ai_root)).grid(row=4,column = 2, sticky=W,pady=2)
+
+
    
 def helloCallBack():
-   msg = messagebox.showinfo( "Coming Soon", "This feature has not been built yet")
-   photo1 = PhotoImage(file="hand.png")
-#   Label (msg, image = photo1) .grid(row=0,column=0,sticky=W)
+    msg = messagebox.showinfo( "Coming Soon", "This feature has not been built yet")
+
 
 def build_it(e1,e2,e3,e4,builder):
     e1s = str(e1.get())
@@ -55,7 +70,7 @@ def enter_db_details():
     builder = Toplevel()
     builder.title("Build A New Dataset")
     Label(builder, text="Dataset Name (no spaces):").grid(row=0)
-    Label(builder, text="# of Hands (1 to 10):").grid(row=1)
+    Label(builder, text="# of Players (1 to 10):").grid(row=1)
     Label(builder, text="# of Tables:").grid(row=2)
     Label(builder, text="Description:").grid(row=3)
 
@@ -126,7 +141,7 @@ def create_menus():
 def list_sets(allrows):
     title_label = Label(top, text = "Current Datasets", relief = SUNKEN)
     title_label.grid(row = 1, column = 1, ipadx = 10, padx = 5, pady = 5)
-    hands_label = Label(top, text = "# Hands", relief = SUNKEN)
+    hands_label = Label(top, text = "# Players", relief = SUNKEN)
     hands_label.grid(row = 1, column = 2, ipadx = 10, padx = 5, pady = 5)
     
     tables_label = Label(top, text = "# Tables", relief = SUNKEN)
@@ -182,7 +197,8 @@ def list_sets(allrows):
         
         ai_play_y = y
         ai_play_x = x + 7
-        ai_play_button = Button(top, text="AI", command = lambda loop = loop: ai_play_dataset_script(loop[1]), relief = RAISED)
+#        ai_play_button = Button(top, text="AI", command = lambda loop = loop: ai_play_dataset_script(loop[1]), relief = RAISED)
+        ai_play_button = Button(top, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
         

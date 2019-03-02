@@ -1,6 +1,7 @@
-def ai_play_dataset_script(look_at_dataname):
+def ai_play_dataset_script(look_at_dataname,ai_option):
 
     import sqlite3
+    import random
     from build_hand import string_to_low, find_low
 
             
@@ -28,8 +29,9 @@ def ai_play_dataset_script(look_at_dataname):
             if each_c not in b_list: pick_two_list.append(each_c)
             if len(pick_two_list) > 2: pick_two_list = pick_two_list[0:2]    
         return(pick_two_list)
-
         
+
+       
     conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
     c = conn.cursor()
 
@@ -59,6 +61,29 @@ def ai_play_dataset_script(look_at_dataname):
     allrows = c.fetchall()    
 
 
+    billy_dict = {}
+    if ai_option == '3':
+        
+        billy_select = """ SELECT   gap_sum,
+                                    gap_win_pct 
+
+                            FROM low_gaps_dataset_Billy_the_kid """
+    
+                                
+        c.execute(billy_select)
+        billyrows = []
+    
+        billyrows = c.fetchall()   
+        for gap_sum_key in billyrows:
+            billy_dict[gap_sum_key[0]] = gap_sum_key[1]
+
+
+
+
+    call_bet = False
+    random_call = 0
+    
+    
     table_no = 1
     table_index = table_no - 1 
     max_tables = len(allrows) 
@@ -140,53 +165,75 @@ def ai_play_dataset_script(look_at_dataname):
             pot += 100
             villain_roll -= 100
     
-    
-            hero_roll -= 100
-            pot += 100
-    
-            if low_result == 'chop':
-    
-                villain_roll += pot/2
-                hero_roll += pot/2
+            if ai_option == '1':
+                call_bet = True
+            elif ai_option == '2':
+                random_call = random.randint(1,3)
+                if random_call == 1: call_bet = True
+                elif random_call == 2: call_bet = False
+                else: print('PROBLEM')
+            elif ai_option == '3':
+                chance = billy_dict[hero_two_sum]
+                if chance >= 0.5:
+                    call_bet = True
+                else: call_bet = False
                 
-            elif low_result == 'villain':
+            
+            else: call_bet = False
+
+
+            if call_bet == True:
     
-                villain_roll += pot
-                
-            elif low_result == 'hero':
-    
-                hero_roll += pot
-               
+                hero_roll -= 100
+                pot += 100
+        
+                if low_result == 'chop':
+        
+                    villain_roll += pot/2
+                    hero_roll += pot/2
+                    
+                elif low_result == 'villain':
+        
+                    villain_roll += pot
+                    
+                elif low_result == 'hero':
+        
+                    hero_roll += pot
+                   
+                else:
+                    print('Problem')
+                    
             else:
-                print('Problem')
+                villain_roll += 100
+                pot = 0
                            
             print("Total won: " + str(hero_roll) + " / " + str(villain_roll))
             pot = 0 
             
-
-
-    sql_create_dataset = """CREATE TABLE low_gaps_""" + look_at_dataname + """ (
-        gap_sum INTEGER PRIMARY KEY,
-        gap_win_pct REAL
-        );"""
-    c.execute('DROP TABLE IF EXISTS low_gaps_' + look_at_dataname)
-    c.execute(sql_create_dataset) 
-
-
-    
-    for aigap,aisum in gap_dict.items():
-    
-        win_pct = aisum[0]/aisum[1]
-
-        
-        sql_low_gaps = """  INSERT INTO low_gaps_""" + look_at_dataname + """(gap_sum, 
-                            gap_win_pct) 
-                            VALUES(?, ?) """
-                            
-        gap_row =          (aigap,
-                            win_pct                                )
-        c.execute(sql_low_gaps, gap_row)
-        
+#   This section is for building AI models
+#
+#    sql_create_dataset = """CREATE TABLE low_gaps_""" + look_at_dataname + """ (
+#        gap_sum INTEGER PRIMARY KEY,
+#        gap_win_pct REAL
+#        );"""
+#    c.execute('DROP TABLE IF EXISTS low_gaps_' + look_at_dataname)
+#    c.execute(sql_create_dataset) 
+#
+#
+#    
+#    for aigap,aisum in gap_dict.items():
+#    
+#        win_pct = aisum[0]/aisum[1]
+#
+#        
+#        sql_low_gaps = """  INSERT INTO low_gaps_""" + look_at_dataname + """(gap_sum, 
+#                            gap_win_pct) 
+#                            VALUES(?, ?) """
+#                            
+#        gap_row =          (aigap,
+#                            win_pct                                )
+#        c.execute(sql_low_gaps, gap_row)
+#        
         
         
         
