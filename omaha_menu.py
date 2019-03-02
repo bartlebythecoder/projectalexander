@@ -9,15 +9,11 @@ from ai_play import ai_play_dataset_script
 import sqlite3
 from sqlite3 import Error
 
-
-
 top = Tk()
 top.title("Omaha 8 Book of Secrets")
 top.geometry("800x600")
 # photo1 = PhotoImage(file="hand.png")
 # Label (top, image = photo1) .grid(row=0,column=0,sticky=W)
-
-
 
 def send_to_analyzer(set,var1,var2,var3,analyzer):
     var1_pass = var1.get()
@@ -25,9 +21,6 @@ def send_to_analyzer(set,var1,var2,var3,analyzer):
     var3_pass = var3.get()
     analyzer.destroy()
     analyze_dataset_script(set,var1_pass,var2_pass,var3_pass)
-
-
-
 
 def analyze_a_set(z):
 
@@ -42,15 +35,11 @@ def analyze_a_set(z):
     Button(analyzer, text='Cancel', command=analyzer.destroy).grid(row=6, sticky=W, pady=2)
     Button(analyzer, text='Submit', command=lambda: send_to_analyzer(z,var1,var2,var3,analyzer)).grid(row=6,column=2, sticky=W, pady=2)
 
-
-    
+   
 def helloCallBack():
    msg = messagebox.showinfo( "Coming Soon", "This feature has not been built yet")
    photo1 = PhotoImage(file="hand.png")
 #   Label (msg, image = photo1) .grid(row=0,column=0,sticky=W)
-
-
-
 
 def build_it(e1,e2,e3,e4,builder):
     e1s = str(e1.get())
@@ -61,10 +50,6 @@ def build_it(e1,e2,e3,e4,builder):
     print(e1s,e2s,e3s,e4s)
     builder.destroy()
     build_dataset(e1s,e2s,e3s,e4s)
-
-    
-
-
 
 def enter_db_details():
     builder = Toplevel()
@@ -150,7 +135,7 @@ def list_sets(allrows):
     desc_label = Label(top, text = "Description",relief = SUNKEN)
     desc_label.grid(row = 1, column = 4, ipadx = 50, padx = 5, pady = 5)
     action_label = Label(top, text = "Action",relief = SUNKEN)
-    action_label.grid(row = 1, column = 5, ipadx = 20, padx = 5, pady = 5, columnspan=3)
+    action_label.grid(row = 1, column = 5, ipadx = 100, padx = 5, pady = 5, columnspan=5)
     y = 2
     x = 1 
     for loop in allrows:
@@ -210,11 +195,8 @@ def list_sets(allrows):
     refresh_button = Button(top, text="Refresh", command = create_screan, relief = RAISED)
     refresh_button.grid(row = 0, column = 5, ipadx = 5, padx = 2, ipady = 5, pady = 5)   
     exit_button = Button(top, text="Exit", command = top.destroy, relief = RAISED)
-    exit_button.grid(row = 0, column = 7, ipadx = 10, padx = 2, ipady = 5, pady = 5)   
+    exit_button.grid(row = 0, column = 8, ipadx = 10, padx = 2, ipady = 5, pady = 5)   
 
-    
-    
-            
 def create_screan():
     allrows = get_data()
     list_sets(allrows)   

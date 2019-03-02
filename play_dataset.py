@@ -114,9 +114,9 @@ def play_dataset_script(look_at_dataname):
     myfont = pygame.font.SysFont('Helvetica', 20)
     clock = pygame.time.Clock()
     low_games_list = []
-    hero_roll = 1000
-    villain_roll = 1000
-    pot = 50
+    hero_roll = 0
+    villain_roll = 0
+    pot = 0
 
     result_surface = result_surface = myfont.render('', False, white) 
     crashed = False
@@ -211,7 +211,7 @@ def play_dataset_script(look_at_dataname):
                             result_surface = result_surface = myfont.render('', False, white) 
                             decision_time = False
                             see_results = False
-                            pot = 50
+                            pot = 0
                         
                 else: 
                     if keys[pygame.K_r]:
@@ -228,7 +228,7 @@ def play_dataset_script(look_at_dataname):
 
         table_index = table_no - 1
         low_board = allrows[table_index][14]
-        while low_board != 1:
+        while low_board != 1 and table_no < max_tables:
             table_no += 1
             table_index = table_no - 1
             low_board = allrows[table_index][14]  
