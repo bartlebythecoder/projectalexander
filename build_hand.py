@@ -122,6 +122,7 @@ def list_from_stack(hand):
     return stack_list     
 
 def string_to_low(string_hand):
+   # Given a string of card values (no suits), convert to a list of low non-dup numbers 
     cards_in_string = len(string_hand)
     low_list = []
     for each_card in range(0,cards_in_string):
@@ -133,6 +134,16 @@ def string_to_low(string_hand):
     low_list.sort()
 #    print(low_list)
     return low_list
+
+def db_hand_to_low(db_string):
+    # Given a hand using the DB string format (values and suits), convert to a list of low non-dup numbers
+    low_response = []
+    no_suit_string = ''
+    for each_card in range(0,8,2):
+        no_suit_string = no_suit_string + db_string[each_card]
+    low_response = string_to_low(no_suit_string)
+    return low_response
+        
 
 low_ranks = {
     "values":       {

@@ -6,12 +6,13 @@ from browse_dataset import browse_dataset
 from build_dataset_lows import build_dataset
 from play_dataset import play_dataset_script
 from ai_play import ai_play_dataset_script
+from hero_hand import hero_hand_run
 import sqlite3
 from sqlite3 import Error
 
 top = Tk()
 top.title("Omaha 8 Book of Secrets")
-top.geometry("800x600")
+top.geometry("900x400")
 # photo1 = PhotoImage(file="hand.png")
 # Label (top, image = photo1) .grid(row=0,column=0,sticky=W)
 
@@ -143,15 +144,67 @@ def refresh_dataset(x):
     x.destroy()
     create_screan()
     
+    
+def send_hero_hand(button,dataset,h_frame):
+    hero_hand_run(button,dataset)
+    h_frame.destroy()    
+
+  
+
+    
+def place_hero_buttons(b_list,y_num,h_frame,dataset):
+    hero_start = 0
+    for each_button in b_list:
+        hero_start += 1
+        h_button = Button(h_frame, text=each_button, command = lambda each_button = each_button: send_hero_hand(each_button,dataset,h_frame), relief = RAISED)
+        h_button.grid(row = hero_start, column = y_num, ipadx = 5,padx =2, pady = 5)    
+
+
+def choose_hero(dataset):
+    heroframe = Toplevel()
+    hero_label = Label(heroframe, text = "Hero Hands", relief = SUNKEN)
+    hero_label.grid(row = 0, column = 0, pady = 25, columnspan=3)
+   
+    
+    ace_hero_buttons = ['A2','A3','A4','A5','A6','A7','A8']
+    two_hero_buttons = ['23','24','25','26','27','28']
+    three_hero_buttons = ['34','35','36','37','38']
+    four_hero_buttons = ['45','46','47','48']
+    five_hero_buttons = ['56','57','58']
+    six_hero_buttons = ['67','68']
+    seven_hero_buttons = ['78']
+    ace_two_hero_buttons = ['A23','A24','A25','A26','A27','A28']      
+    ace_three_hero_buttons = ['A34','A35','A36','A37','A38']
+    ace_four_hero_buttons = ['A45','A46','A47','A48']
+    ace_five_six_hero_buttons = ['A56','A57','A58','A67']
+
+    full_hero_button_list = [ace_hero_buttons,
+         two_hero_buttons,
+         three_hero_buttons,
+         four_hero_buttons,
+         five_hero_buttons,
+         six_hero_buttons,
+         seven_hero_buttons,
+         ace_two_hero_buttons,
+         ace_three_hero_buttons,
+         ace_four_hero_buttons,
+         ace_five_six_hero_buttons]    
+    
+    y_col = 0
+    for h_list in full_hero_button_list:
+        place_hero_buttons(h_list,y_col,heroframe,dataset)
+        y_col += 1
+        
+    Button(heroframe, text='Cancel', command=heroframe.destroy).grid(row=0, column=y_col-1, sticky=W, pady=5, padx = 5)
+
+        
 
     
 def list_sets(allrows):
     
-    datasetframe = Frame(top,width=800,height=300)
+    datasetframe = Frame(top,width=900,height=400)
     datasetframe.grid(row=0,column=0)
-    heroframe = Frame(top,width=800,height=300)
-    heroframe.grid(row=1,column=0)
-    
+   
     
     title_label = Label(datasetframe, text = "Current Datasets", relief = SUNKEN)
     title_label.grid(row = 1, column = 1, ipadx = 10, padx = 5, pady = 5)
@@ -164,7 +217,7 @@ def list_sets(allrows):
     desc_label = Label(datasetframe, text = "Description",relief = SUNKEN)
     desc_label.grid(row = 1, column = 4, ipadx = 50, padx = 5, pady = 5)
     action_label = Label(datasetframe, text = "Action",relief = SUNKEN)
-    action_label.grid(row = 1, column = 5, ipadx = 100, padx = 5, pady = 5, columnspan=5)
+    action_label.grid(row = 1, column = 5, ipadx = 10, padx = 10, pady = 5, columnspan=10)
     y = 2
     x = 1 
     for loop in allrows:
@@ -214,6 +267,11 @@ def list_sets(allrows):
         ai_play_button = Button(datasetframe, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
+        hero_y = y
+        hero_x = x + 8
+        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: choose_hero(loop[1]), relief = RAISED)
+        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
+        
         
         
         y += 1
@@ -224,60 +282,8 @@ def list_sets(allrows):
     refresh_button = Button(datasetframe, text="Refresh", command = lambda: refresh_dataset(datasetframe), relief = RAISED)
     refresh_button.grid(row = 0, column = 5, ipadx = 5, padx = 2, ipady = 5, pady = 5)   
     exit_button = Button(datasetframe, text="Exit", command = top.destroy, relief = RAISED)
-    exit_button.grid(row = 0, column = 8, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+    exit_button.grid(row = 0, column = y-1, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
-    
-    hero_label = Label(heroframe, text = "Hero Hands", relief = SUNKEN)
-    hero_label.grid(row = 0, column = 1, ipadx = 10, padx = 5, pady = 5, columnspan = 4)
-    
-    hero_start = 0
-    ace_hero_buttons = ['A2','A3','A4','A5','A6','A7','A8']
-    for each_button in ace_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 1, ipadx = 10, padx = 5, pady = 5)
-    
-    hero_start = 0    
-    two_hero_buttons = ['23','24','25','26','27','28']
-    for each_button in two_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 2, ipadx = 10, padx = 5, pady = 5)
-        
-    hero_start = 0    
-    three_hero_buttons = ['34','35','36','37','38']
-    for each_button in three_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 3, ipadx = 10, padx = 5, pady = 5)        
-        
-    hero_start = 0    
-    four_hero_buttons = ['45','46','47','48']
-    for each_button in four_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 4, ipadx = 10, padx = 5, pady = 5)            
-    
-    hero_start = 0    
-    five_hero_buttons = ['56','57','58']
-    for each_button in five_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 5, ipadx = 10, padx = 5, pady = 5)      
-        
-    hero_start = 0    
-    six_hero_buttons = ['67','68']
-    for each_button in six_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column = 6, ipadx = 10, padx = 5, pady = 5)      
-        
-    hero_start = 0    
-    seven_hero_buttons = ['78']
-    for each_button in seven_hero_buttons:
-        hero_start += 1
-        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
-        h_button.grid(row = hero_start, column =7, ipadx = 10, padx = 5, pady = 5)            
     
 
 
