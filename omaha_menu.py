@@ -120,7 +120,7 @@ def create_menus():
     filemenu.add_command(label="New", command=helloCallBack)
     filemenu.add_command(label="Save", command=helloCallBack)
     filemenu.add_separator()
-    filemenu.add_command(label="Exit", command=top.quit)
+    filemenu.add_command(label="Exit", command=top.destroy)
     menubar.add_cascade(label="File", menu=filemenu)
 
     # create more pulldown menus
@@ -137,68 +137,81 @@ def create_menus():
 
     # display the menu
     top.config(menu=menubar)     
+
+
+def refresh_dataset(x):
+    x.destroy()
+    create_screan()
+    
+
     
 def list_sets(allrows):
-    title_label = Label(top, text = "Current Datasets", relief = SUNKEN)
+    
+    datasetframe = Frame(top,width=800,height=300)
+    datasetframe.grid(row=0,column=0)
+    heroframe = Frame(top,width=800,height=300)
+    heroframe.grid(row=1,column=0)
+    
+    
+    title_label = Label(datasetframe, text = "Current Datasets", relief = SUNKEN)
     title_label.grid(row = 1, column = 1, ipadx = 10, padx = 5, pady = 5)
-    hands_label = Label(top, text = "# Players", relief = SUNKEN)
+    hands_label = Label(datasetframe, text = "# Players", relief = SUNKEN)
     hands_label.grid(row = 1, column = 2, ipadx = 10, padx = 5, pady = 5)
     
-    tables_label = Label(top, text = "# Tables", relief = SUNKEN)
+    tables_label = Label(datasetframe, text = "# Tables", relief = SUNKEN)
     tables_label.grid(row = 1, column = 3, ipadx = 10, padx = 5, pady = 5)
     
-    desc_label = Label(top, text = "Description",relief = SUNKEN)
+    desc_label = Label(datasetframe, text = "Description",relief = SUNKEN)
     desc_label.grid(row = 1, column = 4, ipadx = 50, padx = 5, pady = 5)
-    action_label = Label(top, text = "Action",relief = SUNKEN)
+    action_label = Label(datasetframe, text = "Action",relief = SUNKEN)
     action_label.grid(row = 1, column = 5, ipadx = 100, padx = 5, pady = 5, columnspan=5)
     y = 2
     x = 1 
     for loop in allrows:
         ds_name = loop[2]
-        row_label = Label(top, text=ds_name)
+        row_label = Label(datasetframe, text=ds_name)
         row_label.grid(row = y, column = x, ipadx = 10)
         
         ds_hands = loop[3]
         hand_y = y
         hand_x = x + 1
-        ds_hand_label = Label(top, text=ds_hands)
+        ds_hand_label = Label(datasetframe, text=ds_hands)
         ds_hand_label.grid(row = hand_y, column = hand_x, ipadx = 10)      
 
 
         ds_tables = loop[4]
         tables_y = y
         tables_x = x + 2
-        tables_label = Label(top, text=ds_tables)
+        tables_label = Label(datasetframe, text=ds_tables)
         tables_label.grid(row = tables_y, column = tables_x, ipadx = 10)      
       
         
         ds_desc = loop[5]
         desc_y = y
         desc_x = x + 3
-        desc_label = Label(top, text=ds_desc)
+        desc_label = Label(datasetframe, text=ds_desc)
         desc_label.grid(row = desc_y, column = desc_x)    
 
         ds_browse_name = loop[1]
         browse_y = y
         browse_x = x + 4
-        browse_button = Button(top, text="Browse", command = lambda loop = loop: browse_dataset(loop[1]), relief = RAISED)
+        browse_button = Button(datasetframe, text="Browse", command = lambda loop = loop: browse_dataset(loop[1]), relief = RAISED)
         browse_button.grid(row = browse_y, column = browse_x, ipadx = 10, padx =1)    
 
         ds_analyze_name = loop[1]
         analyze_y = y
         analyze_x = x + 5
-        analyze_button = Button(top, text="Analyze", command = lambda loop = loop: analyze_a_set(loop[1]), relief = RAISED)
+        analyze_button = Button(datasetframe, text="Analyze", command = lambda loop = loop: analyze_a_set(loop[1]), relief = RAISED)
         analyze_button.grid(row = analyze_y, column = analyze_x, ipadx = 10, padx =1)   
 
         play_y = y
         play_x = x + 6
-        play_button = Button(top, text="Play", command = lambda loop = loop: play_dataset_script(loop[1]), relief = RAISED)
+        play_button = Button(datasetframe, text="Play", command = lambda loop = loop: play_dataset_script(loop[1]), relief = RAISED)
         play_button.grid(row = play_y, column = play_x, ipadx = 10, padx =1) 
         
         ai_play_y = y
         ai_play_x = x + 7
-#        ai_play_button = Button(top, text="AI", command = lambda loop = loop: ai_play_dataset_script(loop[1]), relief = RAISED)
-        ai_play_button = Button(top, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
+        ai_play_button = Button(datasetframe, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
         
@@ -206,16 +219,72 @@ def list_sets(allrows):
         y += 1
         
     
-    build_button = Button(top, text="Build A New Dataset", command = enter_db_details, relief = RAISED)
+    build_button = Button(datasetframe, text="Build A New Dataset", command = enter_db_details, relief = RAISED)
     build_button.grid(row = 0, column = 1, ipadx = 10, padx = 10, ipady = 5, pady = 5)   
-    refresh_button = Button(top, text="Refresh", command = create_screan, relief = RAISED)
+    refresh_button = Button(datasetframe, text="Refresh", command = lambda: refresh_dataset(datasetframe), relief = RAISED)
     refresh_button.grid(row = 0, column = 5, ipadx = 5, padx = 2, ipady = 5, pady = 5)   
-    exit_button = Button(top, text="Exit", command = top.destroy, relief = RAISED)
-    exit_button.grid(row = 0, column = 8, ipadx = 10, padx = 2, ipady = 5, pady = 5)   
+    exit_button = Button(datasetframe, text="Exit", command = top.destroy, relief = RAISED)
+    exit_button.grid(row = 0, column = 8, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+    
+    
+    hero_label = Label(heroframe, text = "Hero Hands", relief = SUNKEN)
+    hero_label.grid(row = 0, column = 1, ipadx = 10, padx = 5, pady = 5, columnspan = 4)
+    
+    hero_start = 0
+    ace_hero_buttons = ['A2','A3','A4','A5','A6','A7','A8']
+    for each_button in ace_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 1, ipadx = 10, padx = 5, pady = 5)
+    
+    hero_start = 0    
+    two_hero_buttons = ['23','24','25','26','27','28']
+    for each_button in two_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 2, ipadx = 10, padx = 5, pady = 5)
+        
+    hero_start = 0    
+    three_hero_buttons = ['34','35','36','37','38']
+    for each_button in three_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 3, ipadx = 10, padx = 5, pady = 5)        
+        
+    hero_start = 0    
+    four_hero_buttons = ['45','46','47','48']
+    for each_button in four_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 4, ipadx = 10, padx = 5, pady = 5)            
+    
+    hero_start = 0    
+    five_hero_buttons = ['56','57','58']
+    for each_button in five_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 5, ipadx = 10, padx = 5, pady = 5)      
+        
+    hero_start = 0    
+    six_hero_buttons = ['67','68']
+    for each_button in six_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column = 6, ipadx = 10, padx = 5, pady = 5)      
+        
+    hero_start = 0    
+    seven_hero_buttons = ['78']
+    for each_button in seven_hero_buttons:
+        hero_start += 1
+        h_button = Button(heroframe, text=each_button, command = helloCallBack, relief = RAISED)
+        h_button.grid(row = hero_start, column =7, ipadx = 10, padx = 5, pady = 5)            
+    
+
 
 def create_screan():
     allrows = get_data()
-    list_sets(allrows)   
+    list_sets(allrows)  
+
    
 create_menus()
 create_screan()

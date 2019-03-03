@@ -183,7 +183,7 @@ def ai_play_dataset_script(look_at_dataname,ai_option):
 
 
             if call_bet == True:
-    
+                print('Call--------------------------')
                 hero_roll -= 100
                 pot += 100
         
@@ -195,6 +195,7 @@ def ai_play_dataset_script(look_at_dataname,ai_option):
                 elif low_result == 'villain':
         
                     villain_roll += pot
+                    print('Villain wins called pot!')
                     
                 elif low_result == 'hero':
         
@@ -204,6 +205,7 @@ def ai_play_dataset_script(look_at_dataname,ai_option):
                     print('Problem')
                     
             else:
+                print('Fold--------------------')
                 villain_roll += 100
                 pot = 0
                            
