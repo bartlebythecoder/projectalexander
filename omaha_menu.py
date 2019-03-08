@@ -12,7 +12,7 @@ from sqlite3 import Error
 
 top = Tk()
 top.title("Omaha 8 Book of Secrets")
-top.geometry("900x400")
+top.geometry("850x600")
 # photo1 = PhotoImage(file="hand.png")
 # Label (top, image = photo1) .grid(row=0,column=0,sticky=W)
 
@@ -57,15 +57,16 @@ def helloCallBack():
     msg = messagebox.showinfo( "Coming Soon", "This feature has not been built yet")
 
 
-def build_it(e1,e2,e3,e4,builder):
+def build_it(e1,e2,e3,e4,e5,builder):
     e1s = str(e1.get())
     e2s = str(e2.get())
     e3s = str(e3.get())
     e4s = str(e4.get())
+    e5s = str(e5.get())
     print('Strings:')
-    print(e1s,e2s,e3s,e4s)
+    print(e1s,e2s,e3s,e4s,e5s)
     builder.destroy()
-    build_dataset(e1s,e2s,e3s,e4s)
+    build_dataset(e1s,e2s,e3s,e4s,e5s)
 
 def enter_db_details():
     builder = Toplevel()
@@ -74,19 +75,23 @@ def enter_db_details():
     Label(builder, text="# of Players (1 to 10):").grid(row=1)
     Label(builder, text="# of Tables:").grid(row=2)
     Label(builder, text="Description:").grid(row=3)
+    Label(builder, text="Hero Hand:").grid(row=4)
+    
 
     e1 = Entry(builder)
     e2 = Entry(builder)
     e3 = Entry(builder)
     e4 = Entry(builder)
+    e5 = Entry(builder)
 
     e1.grid(row=0, column=1)
     e2.grid(row=1, column=1)
     e3.grid(row=2, column=1)
     e4.grid(row=3, column=1)
+    e5.grid(row=4, column=1)
     
-    Button(builder, text='Cancel', command=builder.destroy).grid(row=4, column=0, sticky=W, pady=4)
-    Button(builder, text='Submit', command=lambda: build_it(e1,e2,e3,e4,builder)).grid(row=4, column=1, sticky=W, pady=4)
+    Button(builder, text='Cancel', command=builder.destroy).grid(row=5, column=0, sticky=W, pady=4)
+    Button(builder, text='Submit', command=lambda: build_it(e1,e2,e3,e4,e5,builder)).grid(row=5, column=1, sticky=W, pady=4)
     
     
 
@@ -101,16 +106,26 @@ def get_data():
                                 tables,
                                 screen_description 
                         FROM datasets"""
-
-                            
     c.execute(sql3_select)
     allrows = []
-
     allrows = c.fetchall()    
+    
     conn.commit()  
     conn.close()
     return allrows
 
+def get_all_lows():
+    
+    conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
+    c = conn.cursor()
+
+    sql_low_value = """ SELECT low_string_value FROM low_values_dataset """
+    c.execute(sql_low_value)    
+    lowrows = []
+    lowrows = c.fetchall()
+    conn.commit()  
+    conn.close()
+    return lowrows
     
 def create_menus():    
     # create a toplevel menu
@@ -152,52 +167,28 @@ def send_hero_hand(button,dataset,h_frame):
   
 
     
-def place_hero_buttons(b_list,y_num,h_frame,dataset):
+def place_hero_buttons(b_list,h_frame,dataset):
     hero_start = 0
+    y_num = 1
     for each_button in b_list:
         hero_start += 1
+        print(int(hero_start))
+        if hero_start >= 10: 
+            hero_start = 1
+            y_num += 1
         h_button = Button(h_frame, text=each_button, command = lambda each_button = each_button: send_hero_hand(each_button,dataset,h_frame), relief = RAISED)
-        h_button.grid(row = hero_start, column = y_num, ipadx = 5,padx =2, pady = 5)    
+        h_button.grid(row = hero_start, column = y_num, ipadx = 5,padx =2, pady = 5)  
+        
 
 
 def choose_hero(dataset):
+    lowrows = get_all_lows()
     heroframe = Toplevel()
+    heroframe.geometry('1000x500')
     hero_label = Label(heroframe, text = "Hero Hands", relief = SUNKEN)
-    hero_label.grid(row = 0, column = 0, pady = 25, columnspan=3)
-   
-    
-    ace_hero_buttons = ['A2','A3','A4','A5','A6','A7','A8']
-    two_hero_buttons = ['23','24','25','26','27','28']
-    three_hero_buttons = ['34','35','36','37','38']
-    four_hero_buttons = ['45','46','47','48']
-    five_hero_buttons = ['56','57','58']
-    six_hero_buttons = ['67','68']
-    seven_hero_buttons = ['78']
-    ace_two_hero_buttons = ['A23','A24','A25','A26','A27','A28']      
-    ace_three_hero_buttons = ['A34','A35','A36','A37','A38']
-    ace_four_hero_buttons = ['A45','A46','A47','A48']
-    ace_five_six_hero_buttons = ['A56','A57','A58','A67']
-
-    full_hero_button_list = [ace_hero_buttons,
-         two_hero_buttons,
-         three_hero_buttons,
-         four_hero_buttons,
-         five_hero_buttons,
-         six_hero_buttons,
-         seven_hero_buttons,
-         ace_two_hero_buttons,
-         ace_three_hero_buttons,
-         ace_four_hero_buttons,
-         ace_five_six_hero_buttons]    
-    
-    y_col = 0
-    for h_list in full_hero_button_list:
-        place_hero_buttons(h_list,y_col,heroframe,dataset)
-        y_col += 1
-        
-    Button(heroframe, text='Cancel', command=heroframe.destroy).grid(row=0, column=y_col-1, sticky=W, pady=5, padx = 5)
-
-        
+    hero_label.grid(row = 0, column = 0, padx = 5, pady = 5)
+    Button(heroframe, text='Cancel', command=heroframe.destroy).grid(row = 0, column = 18, ipadx = 10, padx = 5, pady = 5) 
+    place_hero_buttons(lowrows,heroframe,dataset)
 
     
 def list_sets(allrows):
@@ -267,10 +258,10 @@ def list_sets(allrows):
         ai_play_button = Button(datasetframe, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
-        hero_y = y
-        hero_x = x + 8
-        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: choose_hero(loop[1]), relief = RAISED)
-        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
+#        hero_y = y
+#        hero_x = x + 8
+#        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: choose_hero(loop[1]), relief = RAISED)
+#        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
         
         
         

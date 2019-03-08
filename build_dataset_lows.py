@@ -1,4 +1,4 @@
-def build_dataset(d_name,d_hands,d_tables,d_desc):
+def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
     import sqlite3
     from sqlite3 import Error
     import pydealer
@@ -96,8 +96,8 @@ def build_dataset(d_name,d_hands,d_tables,d_desc):
 #        print(low_list)
         for this_low in low_list:
             add_to_dict(two_card_dict,this_low,victory)
-
-     
+            
+    
           
     conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
     c = conn.cursor()
@@ -106,6 +106,8 @@ def build_dataset(d_name,d_hands,d_tables,d_desc):
     new_deck = pydealer.Deck()
     new_deck.shuffle()
     hand_list = []
+    new_card = pydealer.Stack()
+    hero_hand = pydealer.Stack()
     hand = pydealer.Stack()
     flop = pydealer.Stack()
     turn = pydealer.Stack()
@@ -124,7 +126,31 @@ def build_dataset(d_name,d_hands,d_tables,d_desc):
     non_nut_shared = 0
     count_low = 0
     no_lows = 0
+
+
+# This section is for Hero stacks only    
+    hero_terms = []
+    d_hero_indicator = False
+    d_card = ''
+    if d_hero != '':
+        d_hero_indicator = True
+        hero_length = len(d_hero)
+        for hero_loop in range(0,hero_length):
+            d_card = d_hero[hero_loop]
+            if d_card == '1': d_card = "A"
+            d_card += "D"
+            hero_terms.append(d_card)
+        left_over = 4 - hero_length  # need to have four cards to a hand, how many not in the hero list?
+        if left_over > 0:
+            hero_terms.append("9S")
+            if left_over > 1:
+                hero_terms.append("9C")
+                if left_over >2:
+                    hero_terms.append("9H")
+    print('Hero Terms: ')
+    print(hero_terms)
     
+
     d_hands_actual = int(d_hands) # used for passing info to DB
     d_hands_int = int(d_hands) + 1 # used for For X loop    
 
@@ -134,11 +160,21 @@ def build_dataset(d_name,d_hands,d_tables,d_desc):
         two_card_dict[key_inc] = 0
  #   print(two_card_dict)
 
+
     
     for table_total in range(1,table_no):
         print(table_total)
         new_deck = pydealer.Deck()
         new_deck.shuffle()
+        hero_hand.empty()
+        if d_hero_indicator:
+            for each_hero_card in hero_terms:
+                
+                new_card = new_deck.get(each_hero_card)
+                hero_hand.add(new_card)
+#            print('Hero Hand')
+#            print(hero_hand)
+
         flop = new_deck.deal(3)
         flop_text = ''
         for y in range(3):
@@ -173,12 +209,19 @@ def build_dataset(d_name,d_hands,d_tables,d_desc):
         hand_cards = ''
         low_hand = []  # this will be the four cards from the players hand sorted by low
         hand_list = []
+        
 
         for x in range(1,d_hands_int):
             board_final_low = []
             hand_final_low = []
             hand_cards = ''
-            hand = new_deck.deal(4)
+            
+            
+            if x == 1 and d_hero_indicator:
+                hand = hero_hand
+            else:
+                hand = new_deck.deal(4)
+#            print(hand)
             hand.sort(ranks=low_ranks)
             low_hand = list_from_stack(hand)
             low_hand = build_match_low(low_hand)
