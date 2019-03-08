@@ -2,6 +2,7 @@
 from tkinter import messagebox, Checkbutton, IntVar, Radiobutton, StringVar
 from tkinter import *
 from analyze_dataset import analyze_dataset_script
+from hero_results import hero_results_script
 from browse_dataset import browse_dataset
 from build_dataset_lows import build_dataset
 from play_dataset import play_dataset_script
@@ -12,7 +13,7 @@ from sqlite3 import Error
 
 top = Tk()
 top.title("Omaha 8 Book of Secrets")
-top.geometry("850x600")
+top.geometry("900x600")
 # photo1 = PhotoImage(file="hand.png")
 # Label (top, image = photo1) .grid(row=0,column=0,sticky=W)
 
@@ -166,31 +167,6 @@ def send_hero_hand(button,dataset,h_frame):
 
   
 
-    
-def place_hero_buttons(b_list,h_frame,dataset):
-    hero_start = 0
-    y_num = 1
-    for each_button in b_list:
-        hero_start += 1
-        print(int(hero_start))
-        if hero_start >= 10: 
-            hero_start = 1
-            y_num += 1
-        h_button = Button(h_frame, text=each_button, command = lambda each_button = each_button: send_hero_hand(each_button,dataset,h_frame), relief = RAISED)
-        h_button.grid(row = hero_start, column = y_num, ipadx = 5,padx =2, pady = 5)  
-        
-
-
-def choose_hero(dataset):
-    lowrows = get_all_lows()
-    heroframe = Toplevel()
-    heroframe.geometry('1000x500')
-    hero_label = Label(heroframe, text = "Hero Hands", relief = SUNKEN)
-    hero_label.grid(row = 0, column = 0, padx = 5, pady = 5)
-    Button(heroframe, text='Cancel', command=heroframe.destroy).grid(row = 0, column = 18, ipadx = 10, padx = 5, pady = 5) 
-    place_hero_buttons(lowrows,heroframe,dataset)
-
-    
 def list_sets(allrows):
     
     datasetframe = Frame(top,width=900,height=400)
@@ -258,10 +234,10 @@ def list_sets(allrows):
         ai_play_button = Button(datasetframe, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
-#        hero_y = y
-#        hero_x = x + 8
-#        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: choose_hero(loop[1]), relief = RAISED)
-#        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
+        hero_y = y
+        hero_x = x + 8
+        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: hero_results_script(loop[1]), relief = RAISED)
+        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
         
         
         
