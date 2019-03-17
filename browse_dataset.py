@@ -52,6 +52,25 @@ def browse_dataset(look_at_dataname):
         table_place = []
         table_place = low_coord_dict[table]
         return(table_place)
+        
+        
+    def get_high_coord(table):
+        
+        high_coord_dict = {
+        '1'   : [425,205],
+        '2'   : [925,205],
+        '3'   : [425,375],
+        '4'   : [925,375],
+        '5'   : [425,480],
+        '6'   : [925,480],
+        '7'   : [425,605],
+        '8'   : [925,605],
+        '9'   : [425,730],
+        '10'  : [925,730]}
+        
+        table_place = []
+        table_place = high_coord_dict[table]
+        return(table_place)        
 
     conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
     c = conn.cursor()
@@ -72,7 +91,8 @@ def browse_dataset(look_at_dataname):
                                 hand_10,
                                 low_board,
                                 low_hands,
-                                nut_check
+                                nut_check,
+                                high_winners
                         FROM """ + look_at_dataname
 
                             
@@ -152,11 +172,19 @@ def browse_dataset(look_at_dataname):
         low_board = allrows[table_index][14]
         if see_results:
             screen.blit(myfont.render('See Results', False, red),(700,10)) 
+            
+            high_winners = allrows[table_index][17]
+            for x_high in range(len(high_winners)):
+                high_coord = get_high_coord(high_winners[x_high])
+                screen.blit(pygame.image.load('highhand.png').convert_alpha(),(high_coord[0],high_coord[1])) 
+            
+            
             if low_board == 1: 
                 board_img = 'low.png' 
                 
                 low_string = allrows[table_index][15]            
-                low_count = int(get_low_tot_from_string(low_string))
+                if low_string != '': low_count = int(get_low_tot_from_string(low_string)) 
+                else: low_count = 0
                 nut_check = allrows[table_index][16]
 
                 if low_count > 0:

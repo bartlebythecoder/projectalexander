@@ -261,11 +261,11 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
         num_low_hands = 0
         nut_check = 0   
         if board_low_indicator: 
+            low_board = 1
             if table_lows != []:
                 table_lows.sort()
 #                print(table_lows)
                 low_hands_string = get_low_winners(table_lows)
-                low_board = 1
                 low_count += 1
  #               print('low hands string!: ' + low_hands_string)
                 # print(low_hands_string[2:4])

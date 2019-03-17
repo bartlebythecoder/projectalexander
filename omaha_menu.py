@@ -259,11 +259,11 @@ def list_sets(allrows):
     exit_button = Button(datasetframe, text="Exit", command = top.destroy, relief = RAISED)
     exit_button.grid(row = 0, column = y-1, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
-    hero_eq_button = Button(datasetframe, text="Hero Equities", command = hero_equity_script, relief = RAISED)
-    hero_eq_button.grid(row = y+1, column = 2, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
-    
-    six_hand_eq_button = Button(datasetframe, text="Cinci Equities", command = cinci_equity_script, relief = RAISED)
-    six_hand_eq_button.grid(row = y+1, column = 4, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+#    hero_eq_button = Button(datasetframe, text="Hero Equities", command = hero_equity_script, relief = RAISED)
+#    hero_eq_button.grid(row = y+1, column = 2, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+#    
+#    six_hand_eq_button = Button(datasetframe, text="Cinci Equities", command = cinci_equity_script, relief = RAISED)
+#    six_hand_eq_button.grid(row = y+1, column = 4, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
 
 

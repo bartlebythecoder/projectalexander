@@ -161,12 +161,11 @@ def poker_high(handstring):
     ranks.sort(reverse=True)
     flush = len(set(suits)) == 1
     if max(ranks) == 14:
-        straight = sum(ranks) == 28
+        straight = sum(ranks) == 28 and len(set(ranks))==5
     else: straight = (max(ranks)-min(ranks))==4 and len(set(ranks))==5
 
     def kind(n, butnot=None):
-        return sum(r for r in ranks
-                    if ranks.count(r) == n and r != butnot)
+        return sum(r for r in ranks if ranks.count(r) == n and r != butnot)
 
     if straight and flush: return 9, ranks
     if kind(4): return 8, kind(4), kind(1)
@@ -174,7 +173,7 @@ def poker_high(handstring):
     if flush: return 6, ranks
     if straight: return 5, ranks
     if kind(3): return 4, kind(3), ranks
-    if kind(2) and kind(2, kind(2)): 
+    if kind(2) and kind(2, kind(2)) and len(set(ranks))==3:
         return 3, kind(2), kind(2, kind(2)), ranks
     if kind(2): return 2, kind(2), ranks
     return 1, ranks
@@ -187,13 +186,13 @@ def combo_high(board_stack,hand_stack):
     hand_text = ''
     board_text = ''
     
-    print(hand_stack)
-    print(board_stack)
+#    print(hand_stack)
+#    print(board_stack)
     
     
     
     card_combo = ((0,1),(0,2),(0,3),(1,2),(1,3),(2,3))
-    board_combo = ((0,1,2),(0,1,3),(0,1,4),(0,2,3),(0,2,4),(1,2,3),(1,2,4),(1,3,4),(2,3,4))
+    board_combo = ((0,1,2),(0,1,3),(0,1,4),(0,2,3),(0,2,4),(0,3,4),(1,2,3),(1,2,4),(1,3,4),(2,3,4))
     card_list = []
     board_list = []
     
@@ -227,8 +226,8 @@ def combo_high(board_stack,hand_stack):
             if high_list >= current_high:
                 current_high = high_list
                 best_high = high_list
-                print(handstring)
-                print(best_high)
+#                print(handstring)
+#                print(best_high)
     
     if best_high == ():
         best_high = ["Problem"]
