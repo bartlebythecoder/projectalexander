@@ -112,14 +112,14 @@ def build_match_low(card_list):
 
 def list_from_stack(hand):
     stack_list = [] 
-    stach_card_value = ''
+    stack_card_value = ''
     stack_card_int = 0
     for x in hand:
         stack_card_value = x.value
         stack_card_int = low_ranks["values"][x.value]
         # print('New card from stack ' + stack_card_value + ": " + str(stack_card_int))
         stack_list.append(stack_card_int)
-    return stack_list     
+    return stack_list    
 
 def string_to_low(string_hand):
    # Given a string of card values (no suits), convert to a list of low non-dup numbers 
@@ -143,7 +143,101 @@ def db_hand_to_low(db_string):
         no_suit_string = no_suit_string + db_string[each_card]
     low_response = string_to_low(no_suit_string)
     return low_response
+
+def list_to_string(list_of_items):
+    final_string = ''
+    for e_item in list_of_items:
+        final_string = final_string + str(e_item)
+    return final_string
         
+def poker_high(handstring):
+    
+    hand = [handstring[i:i+2] for i in range(0, len(handstring), 2)]
+        
+    
+    suits = [s for r,s in hand]
+    rankstring = [r for r,s in hand]
+    ranks = [rankvalues[r] for r in rankstring]
+    ranks.sort(reverse=True)
+    flush = len(set(suits)) == 1
+    if max(ranks) == 14:
+        straight = sum(ranks) == 28
+    else: straight = (max(ranks)-min(ranks))==4 and len(set(ranks))==5
+
+    def kind(n, butnot=None):
+        return sum(r for r in ranks
+                    if ranks.count(r) == n and r != butnot)
+
+    if straight and flush: return 9, ranks
+    if kind(4): return 8, kind(4), kind(1)
+    if kind(3) and kind(2): return 7, kind(3), kind(2)
+    if flush: return 6, ranks
+    if straight: return 5, ranks
+    if kind(3): return 4, kind(3), ranks
+    if kind(2) and kind(2, kind(2)): 
+        return 3, kind(2), kind(2, kind(2)), ranks
+    if kind(2): return 2, kind(2), ranks
+    return 1, ranks
+
+
+def combo_high(board_stack,hand_stack):
+    current_high = ()
+    best_high = []
+    high_list = []
+    hand_text = ''
+    board_text = ''
+    
+    print(hand_stack)
+    print(board_stack)
+    
+    
+    
+    card_combo = ((0,1),(0,2),(0,3),(1,2),(1,3),(2,3))
+    board_combo = ((0,1,2),(0,1,3),(0,1,4),(0,2,3),(0,2,4),(1,2,3),(1,2,4),(1,3,4),(2,3,4))
+    card_list = []
+    board_list = []
+    
+    board_list = []
+    for y in range(4):
+        card_list.append(hand_stack[y].value[0] + hand_stack[y].suit[0])
+        
+#    print(card_list)    
+        
+    for y in range(5):
+        board_list.append(board_stack[y].value[0] + board_stack[y].suit[0])
+
+#    print(board_list)
+        
+    for x in card_combo:
+        c_index_one = x[0]
+        c_index_two = x[1]
+#        print(x,c_index_one,c_index_two)
+        hand_text = card_list[c_index_one] + card_list[c_index_two]
+        
+        
+        for y in board_combo:
+            b_index_one = y[0]
+            b_index_two = y[1]
+            b_index_three = y[2]
+            board_text = board_list[b_index_one] + board_list[b_index_two] + board_list[b_index_three]
+
+            handstring = hand_text + board_text
+            handstring = handstring.replace("1","T")
+            high_list = poker_high(handstring)
+            if high_list >= current_high:
+                current_high = high_list
+                best_high = high_list
+                print(handstring)
+                print(best_high)
+    
+    if best_high == ():
+        best_high = ["Problem"]
+        
+        
+ 
+    return best_high
+
+
 
 low_ranks = {
     "values":       {
@@ -175,4 +269,7 @@ low_ranks = {
         "3":        3,
         "2":        2
     }
-}                
+}        
+
+rankvalues = dict((r,i) 
+               for i,r in enumerate('..23456789TJQKA'))        

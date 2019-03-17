@@ -1,8 +1,9 @@
 def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
     import sqlite3
-    from sqlite3 import Error
     import pydealer
-    from build_hand import list_from_stack, build_match_low, find_low, pick_five, get_low_all_from_string, get_low_first_from_string, get_low_tot_from_string, low_ranks
+    from build_hand import list_from_stack, build_match_low, find_low, poker_high, combo_high, rankvalues
+    from build_hand import get_low_all_from_string, get_low_first_from_string, get_low_tot_from_string, low_ranks
+
     
 
 
@@ -25,7 +26,9 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             low_board INTEGER,
             low_hands TEXT,
             nut_check INTEGER,
-            the_rabbit TEXT
+            the_rabbit TEXT,
+            high_winners TEXT,
+            high_value TEXT
             );"""
         c.execute(sql_create_dataset) 
 
@@ -124,7 +127,6 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
     shared_low = 0
     shared_nut = 0
     non_nut_shared = 0
-    count_low = 0
     no_lows = 0
 
 
@@ -186,7 +188,9 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
         flop_text = flop_text.replace("1","T")
         turn_text = turn_text.replace("1","T")
         river_text = river_text.replace("1","T")
-        
+        board_text = flop_text + turn_text + river_text
+#        print(board_text)
+#        print(poker_high(board_text))
 
         board_low_indicator = False # Will be turned TRUE if three non-dup cards come on the board  
         board_full_list = []  # will be the integer values of all cards on the board
@@ -207,14 +211,18 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
         
 
         hand_cards = ''
-        low_hand = []  # this will be the four cards from the players hand sorted by low
+        low_hand = []  # this will be the four cards from the player's hand sorted by low
         hand_list = []
+        high_value = () # this will be the highest possible score for the player's hand
+        top_hand =() # used to find the highest score for the table
+        high_winners = '' # Will be the list of winners for high
         
 
         for x in range(1,d_hands_int):
             board_final_low = []
             hand_final_low = []
             hand_cards = ''
+            high_value = [] 
             
             
             if x == 1 and d_hero_indicator:
@@ -222,6 +230,18 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             else:
                 hand = new_deck.deal(4)
 #            print(hand)
+                
+            
+            # For high
+            high_value = combo_high(board,hand)
+            if high_value > top_hand:
+                top_hand = high_value
+                high_winners = str(x)
+            elif high_value == top_hand:
+                high_winners += str(x)
+                      
+            
+            # For low
             hand.sort(ranks=low_ranks)
             low_hand = list_from_stack(hand)
             low_hand = build_match_low(low_hand)
@@ -304,8 +324,10 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
                             low_board,
                             low_hands,
                             nut_check,
-                            the_rabbit) 
-                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+                            the_rabbit,
+                            high_winners,
+                            high_value) 
+                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
                             
         body_row =          (table_total,
                             flop_text,
@@ -324,7 +346,9 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
                             low_board,
                             low_hands_string,
                             nut_check,
-                            rabbit_string)
+                            rabbit_string,
+                            high_winners,
+                            str(top_hand[0]))
 
         c.execute(sqlcommand, body_row)
         

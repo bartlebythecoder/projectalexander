@@ -10,10 +10,13 @@ from ai_play import ai_play_dataset_script
 from hero_hand import hero_hand_run
 import sqlite3
 from sqlite3 import Error
+from hero_equity import hero_equity_script
+from equity import equity_script
+from cinci_equity import cinci_equity_script
 
 top = Tk()
 top.title("Omaha 8 Book of Secrets")
-top.geometry("900x600")
+top.geometry("1000x800")
 # photo1 = PhotoImage(file="hand.png")
 # Label (top, image = photo1) .grid(row=0,column=0,sticky=W)
 
@@ -234,10 +237,15 @@ def list_sets(allrows):
         ai_play_button = Button(datasetframe, text="AI", command = lambda loop = loop: choose_ai_option(loop[1]), relief = RAISED)
         ai_play_button.grid(row = ai_play_y, column = ai_play_x, ipadx = 10, padx =1) 
         
-        hero_y = y
-        hero_x = x + 8
-        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: hero_results_script(loop[1]), relief = RAISED)
-        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
+#        hero_y = y
+#        hero_x = x + 8
+#        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: hero_results_script(loop[1]), relief = RAISED)
+#        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
+        
+        equity_y = y
+        equity_x = x + 9
+        equity_button = Button(datasetframe, text="Equity", command = lambda loop = loop: equity_script(loop[1]), relief = RAISED)
+        equity_button.grid(row = equity_y, column = equity_x, ipadx = 10, padx =1) 
         
         
         
@@ -251,6 +259,11 @@ def list_sets(allrows):
     exit_button = Button(datasetframe, text="Exit", command = top.destroy, relief = RAISED)
     exit_button.grid(row = 0, column = y-1, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
+    hero_eq_button = Button(datasetframe, text="Hero Equities", command = hero_equity_script, relief = RAISED)
+    hero_eq_button.grid(row = y+1, column = 2, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+    
+    six_hand_eq_button = Button(datasetframe, text="Cinci Equities", command = cinci_equity_script, relief = RAISED)
+    six_hand_eq_button.grid(row = y+1, column = 4, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
 
 
