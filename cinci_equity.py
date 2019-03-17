@@ -1,12 +1,13 @@
 def cinci_equity_script():
     import sqlite3
     print('Here goes!')
+    print('We are in Highhands branch')
     
     
     conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
     c = conn.cursor()
 
-    sql3_select = """SELECT * FROM low_equity_dataset_Doc_Holliday"""
+    sql3_select = """SELECT * FROM low_equity_dataset_CinciKid"""
                             
     c.execute(sql3_select)
     allrows = []
