@@ -13,10 +13,11 @@ import pydealer
 
 new_deck = pydealer.Deck()
 new_deck.shuffle()
-flop_find = ["9H","AD","AC"]
+flop_find = ["AS","AD","AC"]
 turn_find = ["6S"]
 river_find = ["4D"]
 flop = new_deck.get_list(flop_find)
+
 turn = new_deck.get_list(turn_find)
 river = new_deck.get_list(river_find)
 
@@ -40,6 +41,9 @@ else:
     match_low = []
     board_low_indicator = False
     
+print(flop)
+flop.sort()
+print('sorted')
 print(flop)
 print(turn)
 print(river)

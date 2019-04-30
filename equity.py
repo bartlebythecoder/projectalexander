@@ -24,8 +24,6 @@ def equity_script(dataset):
         e_table += 1
         print(e_table)
         hands = []
-        low_string = ''
-        temp_list = []
         temp_string = ''
         index_winner_list = []
         winners_string = []

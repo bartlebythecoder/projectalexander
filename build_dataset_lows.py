@@ -1,8 +1,10 @@
-def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
+def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero,d_save):
     import sqlite3
     import pydealer
     from build_hand import list_from_stack, build_match_low, find_low, poker_high, combo_high, rankvalues
     from build_hand import get_low_all_from_string, get_low_first_from_string, get_low_tot_from_string, low_ranks
+    from build_hand import index_to_pydeal
+    from hand_index import hand_info
 
     
 
@@ -28,7 +30,17 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             nut_check INTEGER,
             the_rabbit TEXT,
             high_winners TEXT,
-            high_value TEXT
+            high_value TEXT,
+            hand_1_index TEXT,
+            hand_2_index TEXT,
+            hand_3_index TEXT,
+            hand_4_index TEXT,
+            hand_5_index TEXT,
+            hand_6_index TEXT,
+            hand_7_index TEXT,
+            hand_8_index TEXT,
+            hand_9_index TEXT,
+            hand_10_index TEXT
             );"""
         c.execute(sql_create_dataset) 
 
@@ -101,10 +113,31 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             add_to_dict(two_card_dict,this_low,victory)
             
     
-          
+
+    hero_test_hands = 'QxQyQzQa'  # test - should be replaced with input from DB
+
+    # Only create a brand new dataset for non-hero hand collections.  
+    
+    hero_terms = []
+    d_hero_indicator = False
+    d_write_db = False
+
+
     conn = sqlite3.connect('E:/Dropbox/Code/python/poker/omaha_eight.db')
     c = conn.cursor()
-    create_tables(c,conn)
+
+    
+    if d_hero == 1:
+        d_hero_indicator = True
+        hero_terms = index_to_pydeal(hero_test_hands)
+        print('Hero Terms: ')
+        print(hero_terms)  
+
+    print(str(d_save))
+    if d_save == 1: 
+        print('Save Indicator is true')
+        d_write_db = True
+        create_tables(c,conn)
 
     new_deck = pydealer.Deck()
     new_deck.shuffle()
@@ -128,30 +161,9 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
     shared_nut = 0
     non_nut_shared = 0
     no_lows = 0
+    hero_high_wins = 0.0
+    hero_low_wins = 0.0
 
-
-# This section is for Hero stacks only    
-    hero_terms = []
-    d_hero_indicator = False
-    d_card = ''
-    if d_hero != '':
-        d_hero_indicator = True
-        hero_length = len(d_hero)
-        for hero_loop in range(0,hero_length):
-            d_card = d_hero[hero_loop]
-            if d_card == '1': d_card = "A"
-            d_card += "D"
-            hero_terms.append(d_card)
-        left_over = 4 - hero_length  # need to have four cards to a hand, how many not in the hero list?
-        if left_over > 0:
-            hero_terms.append("9S")
-            if left_over > 1:
-                hero_terms.append("9C")
-                if left_over >2:
-                    hero_terms.append("9H")
-    print('Hero Terms: ')
-    print(hero_terms)
-    
 
     d_hands_actual = int(d_hands) # used for passing info to DB
     d_hands_int = int(d_hands) + 1 # used for For X loop    
@@ -163,7 +175,7 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
  #   print(two_card_dict)
 
 
-    
+### This section iterates once for each game/table ############################################    
     for table_total in range(1,table_no):
         print(table_total)
         new_deck = pydealer.Deck()
@@ -188,14 +200,14 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
         flop_text = flop_text.replace("1","T")
         turn_text = turn_text.replace("1","T")
         river_text = river_text.replace("1","T")
-        board_text = flop_text + turn_text + river_text
+
 #        print(board_text)
 #        print(poker_high(board_text))
 
         board_low_indicator = False # Will be turned TRUE if three non-dup cards come on the board  
         board_full_list = []  # will be the integer values of all cards on the board
         match_low = [] # will be a subset of board_full_list, non-dup list of integers 8 or lower
-        nut_low = []  # Will be the cards that make a nut low hand for this table
+
         table_lows = []  # Will be a list of all lows at the table
         low_hands_string  = ''
 
@@ -210,25 +222,34 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             board_low_indicator = False
         
 
-        hand_cards = ''
+        hand_cards = ''# text representation of each card, to build hand_list
+        hand_card_index = '' # text representaion of each card index, to build hand_list_index
         low_hand = []  # this will be the four cards from the player's hand sorted by low
-        hand_list = []
+        hand_list = [] # this will be a list of each hand in text format
+        hand_index_list = [] # this will be a list of each hand_index in text format
         high_value = () # this will be the highest possible score for the player's hand
         top_hand =() # used to find the highest score for the table
         high_winners = '' # Will be the list of winners for high
         
 
-        for x in range(1,d_hands_int):
-            board_final_low = []
+        for x in range(1,d_hands_int):  #This section iterates for each player at the table
             hand_final_low = []
             hand_cards = ''
+            hand_card_index = ''
             high_value = [] 
+
             
+                       
             
             if x == 1 and d_hero_indicator:
                 hand = hero_hand
             else:
                 hand = new_deck.deal(4)
+                
+                
+                
+            hand.sort(ranks=low_ranks)
+            stack_index = hand_info(hand) # make an instance of the hand_info class from the hand
 #            print(hand)
                 
             
@@ -237,26 +258,40 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             if high_value > top_hand:
                 top_hand = high_value
                 high_winners = str(x)
+               
+                
             elif high_value == top_hand:
                 high_winners += str(x)
                       
             
             # For low
-            hand.sort(ranks=low_ranks)
             low_hand = list_from_stack(hand)
             low_hand = build_match_low(low_hand)
-            low_check = False
             if len(match_low) >= 3 and len(low_hand) >=2:  # asking - are there 3 non-dup low cards on the board and at leaast 2 low cards in the hand?
                 hand_final_low = find_low(match_low,low_hand)
                 if hand_final_low != []: 
                     hand_final_low.append(x)
                     table_lows.append(hand_final_low)
 
+             
+            # add hand to hand_list, and hand_index_list
+           
+
+            get_index = stack_index.build_index()  # this class function creates a list of the four suits in x,y,z,a format
             
-            for y in range(4): hand_cards = hand_cards + (hand[y].value[0] + hand[y].suit[0])
+            for y in range(4): 
+                hand_cards = hand_cards + (hand[y].value[0] + hand[y].suit[0])
+                hand_card_index = hand_card_index + (hand[y].value[0] + get_index[y])
+            
             hand_cards = hand_cards.replace("1","T")
             hand_list.append(hand_cards)
+            hand_card_index = hand_card_index.replace("1","T")
+            hand_index_list.append(hand_card_index)
+######################################################################################################       
        
+        
+        
+        # This section counts stats for analysis, now that the table is done #
         win_check = ''
         num_low_hands = 0
         nut_check = 0   
@@ -281,6 +316,8 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
         
         if num_low_hands >= 1: add_to_low_dict(low_hands_string,num_low_hands)
         
+        if d_hero_indicator is True:    # some stats for Hero Hands
+            if '1' in high_winners: hero_high_wins += (1 / len(high_winners))
         
         
         rabbit_string = ''
@@ -301,176 +338,217 @@ def build_dataset(d_name,d_hands,d_tables,d_desc,d_hero):
             dummy_no = 11 - len(hand_list)
             for dummy_x in range(1,dummy_no):
                 hand_list.append('')
+                hand_index_list.append('')
+                
         else:
             print('Too many hands')
             
 
         
+        if d_write_db is True:
+            sqlcommand = '''    INSERT INTO ''' + db_name + '''(table_no, 
+                                flop,
+                                turn, 
+                                river,
+                                hand_1, 
+                                hand_2, 
+                                hand_3, 
+                                hand_4,
+                                hand_5,
+                                hand_6,
+                                hand_7,
+                                hand_8,
+                                hand_9,
+                                hand_10,
+                                low_board,
+                                low_hands,
+                                nut_check,
+                                the_rabbit,
+                                high_winners,
+                                high_value,
+                                hand_1_index, 
+                                hand_2_index, 
+                                hand_3_index, 
+                                hand_4_index,
+                                hand_5_index,
+                                hand_6_index,
+                                hand_7_index,
+                                hand_8_index,
+                                hand_9_index,
+                                hand_10_index) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+                                
+            body_row =          (table_total,
+                                flop_text,
+                                turn_text,
+                                river_text,
+                                hand_list[0],
+                                hand_list[1],
+                                hand_list[2],
+                                hand_list[3],
+                                hand_list[4],
+                                hand_list[5],
+                                hand_list[6],
+                                hand_list[7],
+                                hand_list[8],
+                                hand_list[9],
+                                low_board,
+                                low_hands_string,
+                                nut_check,
+                                rabbit_string,
+                                high_winners,
+                                str(top_hand[0]),
+                                hand_index_list[0],
+                                hand_index_list[1],
+                                hand_index_list[2],
+                                hand_index_list[3],
+                                hand_index_list[4],
+                                hand_index_list[5],
+                                hand_index_list[6],
+                                hand_index_list[7],
+                                hand_index_list[8],
+                                hand_index_list[9])
     
-        sqlcommand = '''    INSERT INTO ''' + db_name + '''(table_no, 
-                            flop,
-                            turn, 
-                            river,
-                            hand_1, 
-                            hand_2, 
-                            hand_3, 
-                            hand_4,
-                            hand_5,
-                            hand_6,
-                            hand_7,
-                            hand_8,
-                            hand_9,
-                            hand_10,
-                            low_board,
-                            low_hands,
-                            nut_check,
-                            the_rabbit,
-                            high_winners,
-                            high_value) 
-                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+            c.execute(sqlcommand, body_row)
+        
+    if d_write_db is True:    
+        sqlcommand = '''    INSERT INTO datasets (db_name, 
+                            screen_name,
+                            screen_description,
+                            hands,
+                            tables) 
+                            VALUES(?, ?, ?, ?, ?) '''
                             
-        body_row =          (table_total,
-                            flop_text,
-                            turn_text,
-                            river_text,
-                            hand_list[0],
-                            hand_list[1],
-                            hand_list[2],
-                            hand_list[3],
-                            hand_list[4],
-                            hand_list[5],
-                            hand_list[6],
-                            hand_list[7],
-                            hand_list[8],
-                            hand_list[9],
-                            low_board,
-                            low_hands_string,
-                            nut_check,
-                            rabbit_string,
-                            high_winners,
-                            str(top_hand[0]))
-
-        c.execute(sqlcommand, body_row)
+    
+        
+                            
+        dataset_row =          (db_name,
+                            d_name,
+                            d_desc,
+                            d_hands_actual,
+                            d_tables_act)
+    
+        c.execute(sqlcommand, dataset_row)        
+    
+        
+        no_lows = d_tables_act - low_count
+        non_nut_count = low_count - nut_count   
+        non_nut_shared = shared_low - shared_nut
+        non_nut_solo = non_nut_count - non_nut_shared
+        nut_solo = nut_count - shared_nut     
+        sql_low_command = '''   INSERT INTO low_counts(dataset, 
+                                lows,
+                                no_lows, 
+                                shared_lows,
+                                non_nut_lows, 
+                                nut_lows, 
+                                non_nut_solo_lows, 
+                                non_nut_shared_lows,
+                                nut_solo_lows,
+                                nut_shared_lows) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+                                
+        body_low_row =          (db_name,
+                                    low_count,
+                                    no_lows,
+                                    shared_low,
+                                    non_nut_count,
+                                    nut_count,
+                                    non_nut_solo,
+                                    non_nut_shared,
+                                    nut_solo,
+                                    shared_nut)
+        c.execute(sql_low_command, body_low_row)
         
         
-    sqlcommand = '''    INSERT INTO datasets (db_name, 
-                        screen_name,
-                        screen_description,
-                        hands,
-                        tables) 
-                        VALUES(?, ?, ?, ?, ?) '''
-                        
-
+        
+    #    print(two_card_dict)
     
-                        
-    dataset_row =          (db_name,
-                        d_name,
-                        d_desc,
-                        d_hands_actual,
-                        d_tables_act)
-
-    c.execute(sqlcommand, dataset_row)        
-
     
-    no_lows = d_tables_act - low_count
-    non_nut_count = low_count - nut_count   
-    non_nut_shared = shared_low - shared_nut
-    non_nut_solo = non_nut_count - non_nut_shared
-    nut_solo = nut_count - shared_nut     
-    sql_low_command = '''   INSERT INTO low_counts(dataset, 
-                            lows,
-                            no_lows, 
-                            shared_lows,
-                            non_nut_lows, 
-                            nut_lows, 
-                            non_nut_solo_lows, 
-                            non_nut_shared_lows,
-                            nut_solo_lows,
-                            nut_shared_lows) 
-                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
+    
+        sql_two_command = '''INSERT INTO two_card_lows(dataset, 
+                                                        k12,
+                                                        k13,
+                                                        k14,
+                                                        k15,
+                                                        k16,
+                                                        k17,
+                                                        k18,
+                                                        k23,
+                                                        k24,
+                                                        k25,
+                                                        k26,
+                                                        k27,
+                                                        k28,
+                                                        k34,
+                                                        k35,
+                                                        k36,
+                                                        k37,
+                                                        k38,
+                                                        k45,
+                                                        k46,
+                                                        k47,
+                                                        k48,
+                                                        k56,
+                                                        k57,
+                                                        k58,
+                                                        k67,
+                                                        k68,
+                                                        k78)
+                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
                             
-    body_low_row =          (db_name,
-                                low_count,
-                                no_lows,
-                                shared_low,
-                                non_nut_count,
-                                nut_count,
-                                non_nut_solo,
-                                non_nut_shared,
-                                nut_solo,
-                                shared_nut)
-    c.execute(sql_low_command, body_low_row)
+        body_two_row =  (db_name,
+                two_card_dict['12'],
+                two_card_dict['13'],
+                two_card_dict['14'],
+                two_card_dict['15'],
+                two_card_dict['16'],
+                two_card_dict['17'],
+                two_card_dict['18'],
+                two_card_dict['23'],
+                two_card_dict['24'],
+                two_card_dict['25'],
+                two_card_dict['26'],
+                two_card_dict['27'],
+                two_card_dict['28'],
+                two_card_dict['34'],
+                two_card_dict['35'],
+                two_card_dict['36'],
+                two_card_dict['37'],
+                two_card_dict['38'],
+                two_card_dict['45'],
+                two_card_dict['46'],
+                two_card_dict['47'],
+                two_card_dict['48'],
+                two_card_dict['56'],
+                two_card_dict['57'],
+                two_card_dict['58'],
+                two_card_dict['67'],
+                two_card_dict['68'],
+                two_card_dict['78'])
     
-    
-    
-#    print(two_card_dict)
+        c.execute(sql_two_command, body_two_row)    
 
-
-
-    sql_two_command = '''INSERT INTO two_card_lows(dataset, 
-                                                    k12,
-                                                    k13,
-                                                    k14,
-                                                    k15,
-                                                    k16,
-                                                    k17,
-                                                    k18,
-                                                    k23,
-                                                    k24,
-                                                    k25,
-                                                    k26,
-                                                    k27,
-                                                    k28,
-                                                    k34,
-                                                    k35,
-                                                    k36,
-                                                    k37,
-                                                    k38,
-                                                    k45,
-                                                    k46,
-                                                    k47,
-                                                    k48,
-                                                    k56,
-                                                    k57,
-                                                    k58,
-                                                    k67,
-                                                    k68,
-                                                    k78)
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) '''
-                        
-    body_two_row =  (db_name,
-            two_card_dict['12'],
-            two_card_dict['13'],
-            two_card_dict['14'],
-            two_card_dict['15'],
-            two_card_dict['16'],
-            two_card_dict['17'],
-            two_card_dict['18'],
-            two_card_dict['23'],
-            two_card_dict['24'],
-            two_card_dict['25'],
-            two_card_dict['26'],
-            two_card_dict['27'],
-            two_card_dict['28'],
-            two_card_dict['34'],
-            two_card_dict['35'],
-            two_card_dict['36'],
-            two_card_dict['37'],
-            two_card_dict['38'],
-            two_card_dict['45'],
-            two_card_dict['46'],
-            two_card_dict['47'],
-            two_card_dict['48'],
-            two_card_dict['56'],
-            two_card_dict['57'],
-            two_card_dict['58'],
-            two_card_dict['67'],
-            two_card_dict['68'],
-            two_card_dict['78'])
-
-    c.execute(sql_two_command, body_two_row)    
     
-    
+    if d_hero_indicator is True:
+        print('Hero High Wins = ' + str(hero_high_wins))
+#        sqlcommand = '''    INSERT INTO master_index (db_name, 
+#                            screen_name,
+#                            screen_description,
+#                            hands,
+#                            tables) 
+#                            VALUES(?, ?, ?, ?, ?) '''
+#                            
+#    
+#        
+#                            
+#        dataset_row =          (db_name,
+#                            d_name,
+#                            d_desc,
+#                            d_hands_actual,
+#                            d_tables_act)
+#    
+#        c.execute(sqlcommand, dataset_row)       
     
    
     

@@ -1,3 +1,22 @@
+def index_to_pydeal(index_hand):
+    #Gets a hand in high_index format and converts to a list PyDealer can parse
+    hand_size = int(len(index_hand)/2)
+    print('Hand Size: ' + str(hand_size))
+    pydealer_list = []
+    get_card = ''
+    index_hand = index_hand.replace('x','C')
+    index_hand = index_hand.replace('y','D')
+    index_hand = index_hand.replace('z','H')
+    index_hand = index_hand.replace('a','S')
+    for each_card in range(0,hand_size):
+        start_card = each_card * 2
+        get_card = index_hand[start_card:start_card+2]
+        get_card = get_card.replace('T','10')
+        pydealer_list.append(get_card)
+    
+    return pydealer_list
+        
+
 def get_low_tot_from_string(low_string):
     sub_string = low_string.split(':')
     return sub_string[0]
@@ -102,15 +121,15 @@ def find_low(board, hand):
         
     
 def build_match_low(card_list):
+    # Given a list return a list of numbers 8 lower and without dups
     new_card_list = []
     card_list = list(set(card_list))
     card_list.sort()
-    for a in card_list:
-        if a <= 8:
-            new_card_list.append(a)
+    new_card_list = list(filter(lambda x: x <= 8, card_list))
     return new_card_list
 
 def list_from_stack(hand):
+    # Given a pydealer stack and return a list of values as integers
     stack_list = [] 
     stack_card_value = ''
     stack_card_int = 0

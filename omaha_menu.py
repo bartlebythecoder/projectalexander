@@ -12,6 +12,7 @@ import sqlite3
 from sqlite3 import Error
 from hero_equity import hero_equity_script
 from equity import equity_script
+from high_equity import high_equity_script
 from cinci_equity import cinci_equity_script
 
 top = Tk()
@@ -61,16 +62,17 @@ def helloCallBack():
     msg = messagebox.showinfo( "Coming Soon", "This feature has not been built yet")
 
 
-def build_it(e1,e2,e3,e4,e5,builder):
+def build_it(e1,e2,e3,e4,var1,var2,builder):
     e1s = str(e1.get())
     e2s = str(e2.get())
     e3s = str(e3.get())
     e4s = str(e4.get())
-    e5s = str(e5.get())
+    var1_pass = var1.get()
+    var2_pass = var2.get()
     print('Strings:')
-    print(e1s,e2s,e3s,e4s,e5s)
+    print(e1s,e2s,e3s,e4s,var1_pass,var2_pass)
     builder.destroy()
-    build_dataset(e1s,e2s,e3s,e4s,e5s)
+    build_dataset(e1s,e2s,e3s,e4s,var1_pass,var2_pass)
 
 def enter_db_details():
     builder = Toplevel()
@@ -79,23 +81,27 @@ def enter_db_details():
     Label(builder, text="# of Players (1 to 10):").grid(row=1)
     Label(builder, text="# of Tables:").grid(row=2)
     Label(builder, text="Description:").grid(row=3)
-    Label(builder, text="Hero Hand:").grid(row=4)
+    var1 = IntVar()
+    Checkbutton(builder, text="Hero Hand", variable=var1).grid(row=4, sticky=W)
+    var2 = IntVar()
+    Checkbutton(builder, text="Save this DB", variable=var2).grid(row=5, sticky=W)
+
     
 
     e1 = Entry(builder)
     e2 = Entry(builder)
     e3 = Entry(builder)
     e4 = Entry(builder)
-    e5 = Entry(builder)
+
 
     e1.grid(row=0, column=1)
     e2.grid(row=1, column=1)
     e3.grid(row=2, column=1)
     e4.grid(row=3, column=1)
-    e5.grid(row=4, column=1)
+
     
-    Button(builder, text='Cancel', command=builder.destroy).grid(row=5, column=0, sticky=W, pady=4)
-    Button(builder, text='Submit', command=lambda: build_it(e1,e2,e3,e4,e5,builder)).grid(row=5, column=1, sticky=W, pady=4)
+    Button(builder, text='Cancel', command=builder.destroy).grid(row=6, column=0, sticky=W, pady=4)
+    Button(builder, text='Submit', command=lambda: build_it(e1,e2,e3,e4,var1,var2,builder)).grid(row=6, column=1, sticky=W, pady=4)
     
     
 
@@ -242,10 +248,15 @@ def list_sets(allrows):
 #        hero_button = Button(datasetframe, text="Hero", command = lambda loop = loop: hero_results_script(loop[1]), relief = RAISED)
 #        hero_button.grid(row = hero_y, column = hero_x, ipadx = 10, padx =1) 
         
-        equity_y = y
-        equity_x = x + 9
-        equity_button = Button(datasetframe, text="Equity", command = lambda loop = loop: equity_script(loop[1]), relief = RAISED)
-        equity_button.grid(row = equity_y, column = equity_x, ipadx = 10, padx =1) 
+#        equity_y = y
+#        equity_x = x + 9
+#        equity_button = Button(datasetframe, text="Low Equity", command = lambda loop = loop: equity_script(loop[1]), relief = RAISED)
+#        equity_button.grid(row = equity_y, column = equity_x, ipadx = 10, padx =1) 
+#        
+#        h_equity_y = y
+#        h_equity_x = x + 10
+#        h_equity_button = Button(datasetframe, text="High Equity", command = lambda loop = loop: high_equity_script(loop[1]), relief = RAISED)
+#        h_equity_button.grid(row = h_equity_y, column = h_equity_x, ipadx = 10, padx =1) 
         
         
         
@@ -255,9 +266,9 @@ def list_sets(allrows):
     build_button = Button(datasetframe, text="Build A New Dataset", command = enter_db_details, relief = RAISED)
     build_button.grid(row = 0, column = 1, ipadx = 10, padx = 10, ipady = 5, pady = 5)   
     refresh_button = Button(datasetframe, text="Refresh", command = lambda: refresh_dataset(datasetframe), relief = RAISED)
-    refresh_button.grid(row = 0, column = 5, ipadx = 5, padx = 2, ipady = 5, pady = 5)   
+    refresh_button.grid(row = 0, column = 2, ipadx = 5, padx = 2, ipady = 5, pady = 5)   
     exit_button = Button(datasetframe, text="Exit", command = top.destroy, relief = RAISED)
-    exit_button.grid(row = 0, column = y-1, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
+    exit_button.grid(row = 0, column = 8, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
     
 #    hero_eq_button = Button(datasetframe, text="Hero Equities", command = hero_equity_script, relief = RAISED)
 #    hero_eq_button.grid(row = y+1, column = 2, ipadx = 10, padx = 2, ipady = 5, pady = 5)  
